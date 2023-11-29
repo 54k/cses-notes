@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
 
+// https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/D
 public class Task4 {
     static class SegmentTree {
         int[] tree;
