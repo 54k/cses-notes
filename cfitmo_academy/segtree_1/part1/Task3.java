@@ -1,5 +1,4 @@
-package cfitmo_academy.segtree.part2;
-
+package cfitmo_academy.segtree_1.part1;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,10 +7,22 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
 
-// https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/D
-public class Task4 {
+public class Task3 {
     static class SegmentTree {
-        int[] tree;
+        static class Node {
+            int min, cnt;
+
+            Node(int m, int c) {
+                min = m;
+                cnt = c;
+            }
+
+            public String toString() {
+                return min + " " + cnt;
+            }
+        }
+
+        Node[] tree;
         int size;
 
         SegmentTree(int[] arr) {
@@ -20,21 +31,32 @@ public class Task4 {
             while (size < n) {
                 size *= 2;
             }
-            tree = new int[2 * size];
+            tree = new Node[2 * size];
+            for (int i = 0; i < tree.length; i++) {
+                tree[i] = new Node(Integer.MAX_VALUE, 0);
+            }
             build(arr, 0, 0, size);
+        }
+
+        Node combine(Node left, Node right) {
+            if (left.min < right.min)
+                return left;
+            if (right.min < left.min)
+                return right;
+            return new Node(left.min, left.cnt + right.cnt);
         }
 
         void build(int[] arr, int x, int lx, int rx) {
             if (rx - lx == 1) {
                 if (lx < arr.length) {
-                    tree[x] = arr[lx];
+                    tree[x] = new Node(arr[lx], 1);
                 }
                 return;
             }
             int m = (lx + rx) / 2;
             build(arr, x * 2 + 1, lx, m);
             build(arr, x * 2 + 2, m, rx);
-            tree[x] = Math.max(tree[x * 2 + 1], tree[x * 2 + 2]);
+            tree[x] = combine(tree[x * 2 + 1], tree[x * 2 + 2]);
         }
 
         void add(int i, int v) {
@@ -43,7 +65,7 @@ public class Task4 {
 
         void add(int x, int lx, int rx, int i, int v) {
             if (rx - lx == 1) {
-                tree[x] = v;
+                tree[x] = new Node(v, 1);
                 return;
             }
             int m = (lx + rx) / 2;
@@ -52,30 +74,24 @@ public class Task4 {
             } else {
                 add(x * 2 + 2, m, rx, i, v);
             }
-            tree[x] = Math.max(tree[x * 2 + 1], tree[x * 2 + 2]);
+            tree[x] = combine(tree[x * 2 + 1], tree[x * 2 + 2]);
         }
 
-        int findAbove(int k, int l) {
-            return findAbove(0, 0, size, k, l);
+        Node query(int l, int r) {
+            return query(0, 0, size, l, r);
         }
 
-        int findAbove(int x, int lx, int rx, int k, int l) {
-            if (tree[x] < k) {
-                return -1;
-            }
-            if (rx <= l) {
-                return -1;
-            }
-            if (lx == rx - 1) {
-                return lx;
+        Node query(int x, int lx, int rx, int l, int r) {
+            if (l >= rx || lx >= r) {
+                return new Node(Integer.MAX_VALUE, 0);
             }
 
-            int mx = (lx + rx) / 2;
-            int ans = findAbove(x * 2 + 1, lx, mx, k, l);
-            if (ans == -1) {
-                ans = findAbove(x * 2 + 2, mx, rx, k, l);
+            if (lx >= l && rx <= r) {
+                return tree[x];
             }
-            return ans;
+
+            int m = (lx + rx) / 2;
+            return combine(query(x * 2 + 1, lx, m, l, r), query(x * 2 + 2, m, rx, l, r));
         }
     }
 
@@ -183,10 +199,10 @@ public class Task4 {
                     int v = io.nextInt();
                     tree.add(i, v);
                 } else {
-                    int k = io.nextInt();
                     int l = io.nextInt();
-                    int el = tree.findAbove(k, l);
-                    System.out.println(el);
+                    int r = io.nextInt();
+                    SegmentTree.Node q = tree.query(l, r);
+                    System.out.println(q);
                 }
             }
         }

@@ -1,4 +1,4 @@
-package cfitmo_academy.segtree.part3;
+package cfitmo_academy.segtree_1.part2;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -6,90 +6,70 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.InputMismatchException;
-import java.util.Map;
-import java.util.Objects;
 
-public class Task3 {
-
-    static Map<Integer, Integer> leftBound = new HashMap<>();
-    static SegTree segTree;
-
-    public static void main(String[] args) {
-        try (FastIO io = new FastIO()) {
-            int n = io.nextInt();
-
-            String[] answer = new String[n];
-            segTree = new SegTree(2 * n);
-
-            for (int i = 0; i < 2 * n; i++) {
-                int num = io.nextInt();
-
-                if (leftBound.containsKey(num)) {
-                    int q = segTree.query(leftBound.get(num), i + 1);
-                    answer[num - 1] = Objects.toString(q);
-                    segTree.update(leftBound.get(num), 1);
-                } else {
-                    leftBound.put(num, i);
-                }
-            }
-
-            for (String num : answer) {
-                System.out.printf("%s ", num);
-            }
-        }
-    }
-
-    static class SegTree {
+// https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/B
+public class Task2 {
+    static class SegmentTree {
         int[] tree;
         int size;
 
-        SegTree(int n) {
+        SegmentTree(int[] arr) {
+            int n = arr.length;
             size = 1;
             while (size < n) {
                 size *= 2;
             }
             tree = new int[2 * size];
+            build(arr, 0, 0, size);
         }
 
-        void update(int i, int v) {
-            update(0, 0, size, i, v);
-        }
-
-        void update(int x, int xl, int xr, int i, int v) {
-            if (xl + 1 == xr) {
-                tree[x] = v;
+        void build(int[] arr, int x, int lx, int rx) {
+            if (rx - lx == 1) {
+                if (lx < arr.length) {
+                    tree[x] = arr[lx];
+                }
                 return;
             }
-
-            int xm = (xl + xr) / 2;
-            if (i < xm) {
-                update(x * 2 + 1, xl, xm, i, v);
-            } else {
-                update(x * 2 + 2, xm, xr, i, v);
-            }
-
+            int m = (lx + rx) / 2;
+            build(arr, x * 2 + 1, lx, m);
+            build(arr, x * 2 + 2, m, rx);
             tree[x] = tree[x * 2 + 1] + tree[x * 2 + 2];
         }
 
-        int query(int l, int r) {
-            return query(0, 0, size, l, r);
+        void add(int i, int v) {
+            add(0, 0, size, i, v);
         }
 
-        int query(int x, int xl, int xr, int l, int r) {
-            if (l >= xr || xl >= r) {
-                return 0;
+        void add(int x, int lx, int rx, int i, int v) {
+            if (rx - lx == 1) {
+                tree[x] = v;
+                return;
+            }
+            int m = (lx + rx) / 2;
+            if (i < m) {
+                add(x * 2 + 1, lx, m, i, v);
+            } else {
+                add(x * 2 + 2, m, rx, i, v);
+            }
+            tree[x] = tree[x * 2 + 1] + tree[x * 2 + 2];
+        }
+
+        int find(int k) {
+            return find(0, 0, size, k);
+        }
+
+        int find(int x, int lx, int rx, int k) {
+            if (lx == rx - 1) {
+                return lx;
             }
 
-            if (xl >= l && xr <= r) {
-                return tree[x];
+            int mx = (lx + rx) / 2;
+            if (k < tree[x * 2 + 1]) {
+                return find(x * 2 + 1, lx, mx, k);
+            } else {
+                return find(x * 2 + 2, mx, rx, k - tree[x * 2 + 1]);
             }
-
-            int xm = (xl + xr) / 2;
-            int left = query(x * 2 + 1, xl, xm, l, r);
-            int right = query(x * 2 + 2, xm, xr, l, r);
-            return left + right;
         }
     }
 
@@ -175,6 +155,33 @@ public class Task3 {
 
         public double nextDouble() {
             return Double.parseDouble(next());
+        }
+    }
+
+    public static void main(String[] args) {
+        try (FastIO io = new FastIO()) {
+            int n = io.nextInt();
+            int m = io.nextInt();
+
+            int[] arr = new int[n];
+            for (int i = 0; i < n; i++) {
+                arr[i] = io.nextInt();
+            }
+
+            SegmentTree tree = new SegmentTree(arr);
+
+            while (m-- > 0) {
+                int op = io.nextInt();
+                if (op == 1) {
+                    int i = io.nextInt();
+                    arr[i] = 1 - arr[i];
+                    tree.add(i, arr[i]);
+                } else {
+                    int k = io.nextInt();
+                    int pos = tree.find(k);
+                    System.out.println(pos);
+                }
+            }
         }
     }
 }

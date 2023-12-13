@@ -1,4 +1,4 @@
-package cfitmo_academy.segtree.part3;
+package cfitmo_academy.segtree_2.part1;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -8,10 +8,31 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
 
-// https://codeforces.com/edu/course/2/lesson/4/3/practice/contest/274545/problem/A
 public class Task1 {
+    public static void main(String[] args) {
+        try (FastIO io = new FastIO()) {
+            int n = io.nextInt();
+            int m = io.nextInt();
+
+            SegTree tree = new SegTree(n);
+            for (int i = 0; i < m; i++) {
+                int op = io.nextInt();
+                if (op == 1) {
+                    int l = io.nextInt();
+                    int r = io.nextInt();
+                    int v = io.nextInt();
+                    tree.add(l, r, v);
+                } else {
+                    int index = io.nextInt();
+                    long res = tree.get(index);
+                    System.out.println(res);
+                }
+            }
+        }
+    }
+
     static class SegTree {
-        int[] tree;
+        long[] tree;
         int size;
 
         SegTree(int n) {
@@ -19,53 +40,41 @@ public class Task1 {
             while (size < n) {
                 size *= 2;
             }
-            tree = new int[2 * size];
+            tree = new long[2 * size];
         }
 
-        void set(int v) {
-            set(0, 0, size, v);
+        void add(int l, int r, int v) {
+            add(0, 0, size, l, r, v);
         }
 
-        void set(int x, int xl, int xr, int v) {
-            if (xr - xl == 1) {
-                tree[x] = 1;
+        void add(int x, int xl, int xr, int l, int r, int v) {
+            if (xl >= r || xr <= l) {
                 return;
             }
 
-            int xm = (xl + xr) / 2;
-            if (v < xm) {
-                set(x * 2 + 1, xl, xm, v);
-            } else {
-                set(x * 2 + 2, xm, xr, v);
-            }
-            tree[x] = tree[x * 2 + 1] + tree[x * 2 + 2];
-        }
-
-        int sum(int l) {
-            return sum(0, 0, size, l, size);
-        }
-
-        int sum(int x, int xl, int xr, int l, int r) {
-            if (xr <= l || xl >= r) {
-                return 0;
-            }
             if (l <= xl && xr <= r) {
+                tree[x] += v;
+                return;
+            }
+            int xm = (xl + xr) / 2;
+            add(x * 2 + 1, xl, xm, l, r, v);
+            add(x * 2 + 2, xm, xr, l, r, v);
+        }
+
+        long get(int i) {
+            return get(0, 0, size, i);
+        }
+
+        long get(int x, int xl, int xr, int i) {
+            if (xl + 1 == xr) {
                 return tree[x];
             }
 
             int xm = (xl + xr) / 2;
-            return sum(x * 2 + 1, xl, xm, l, r) + sum(x * 2 + 2, xm, xr, l, r);
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        try (FastIO fio = new FastIO()) {
-            int n = fio.nextInt();
-            SegTree tree = new SegTree(n);
-            for (int i = 0; i < n; i++) {
-                int num = fio.nextInt() - 1;
-                System.out.printf("%s ", tree.sum(num));
-                tree.set(num);
+            if (i < xm) {
+                return get(x * 2 + 1, xl, xm, i) + tree[x];
+            } else {
+                return get(x * 2 + 2, xm, xr, i) + tree[x];
             }
         }
     }

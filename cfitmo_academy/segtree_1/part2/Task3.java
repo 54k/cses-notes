@@ -1,4 +1,5 @@
-package cfitmo_academy.segtree.part1;
+package cfitmo_academy.segtree_1.part2;
+
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -7,22 +8,10 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
 
+// https://codeforces.com/edu/course/2/lesson/4/2/practice/contest/273278/problem/C
 public class Task3 {
     static class SegmentTree {
-        static class Node {
-            int min, cnt;
-
-            Node(int m, int c) {
-                min = m;
-                cnt = c;
-            }
-
-            public String toString() {
-                return min + " " + cnt;
-            }
-        }
-
-        Node[] tree;
+        int[] tree;
         int size;
 
         SegmentTree(int[] arr) {
@@ -31,32 +20,21 @@ public class Task3 {
             while (size < n) {
                 size *= 2;
             }
-            tree = new Node[2 * size];
-            for (int i = 0; i < tree.length; i++) {
-                tree[i] = new Node(Integer.MAX_VALUE, 0);
-            }
+            tree = new int[2 * size];
             build(arr, 0, 0, size);
-        }
-
-        Node combine(Node left, Node right) {
-            if (left.min < right.min)
-                return left;
-            if (right.min < left.min)
-                return right;
-            return new Node(left.min, left.cnt + right.cnt);
         }
 
         void build(int[] arr, int x, int lx, int rx) {
             if (rx - lx == 1) {
                 if (lx < arr.length) {
-                    tree[x] = new Node(arr[lx], 1);
+                    tree[x] = arr[lx];
                 }
                 return;
             }
             int m = (lx + rx) / 2;
             build(arr, x * 2 + 1, lx, m);
             build(arr, x * 2 + 2, m, rx);
-            tree[x] = combine(tree[x * 2 + 1], tree[x * 2 + 2]);
+            tree[x] = Math.max(tree[x * 2 + 1], tree[x * 2 + 2]);
         }
 
         void add(int i, int v) {
@@ -65,7 +43,7 @@ public class Task3 {
 
         void add(int x, int lx, int rx, int i, int v) {
             if (rx - lx == 1) {
-                tree[x] = new Node(v, 1);
+                tree[x] = v;
                 return;
             }
             int m = (lx + rx) / 2;
@@ -74,24 +52,27 @@ public class Task3 {
             } else {
                 add(x * 2 + 2, m, rx, i, v);
             }
-            tree[x] = combine(tree[x * 2 + 1], tree[x * 2 + 2]);
+            tree[x] = Math.max(tree[x * 2 + 1], tree[x * 2 + 2]);
         }
 
-        Node query(int l, int r) {
-            return query(0, 0, size, l, r);
+        int findAbove(int k) {
+            return findAbove(0, 0, size, k);
         }
 
-        Node query(int x, int lx, int rx, int l, int r) {
-            if (l >= rx || lx >= r) {
-                return new Node(Integer.MAX_VALUE, 0);
+        int findAbove(int x, int lx, int rx, int k) {
+            if (tree[x] < k) {
+                return -1;
+            }
+            if (lx == rx - 1) {
+                return lx;
             }
 
-            if (lx >= l && rx <= r) {
-                return tree[x];
+            int mx = (lx + rx) / 2;
+            int ans = findAbove(x * 2 + 1, lx, mx, k);
+            if (ans == -1) {
+                ans = findAbove(x * 2 + 2, mx, rx, k);
             }
-
-            int m = (lx + rx) / 2;
-            return combine(query(x * 2 + 1, lx, m, l, r), query(x * 2 + 2, m, rx, l, r));
+            return ans;
         }
     }
 
@@ -199,10 +180,9 @@ public class Task3 {
                     int v = io.nextInt();
                     tree.add(i, v);
                 } else {
-                    int l = io.nextInt();
-                    int r = io.nextInt();
-                    SegmentTree.Node q = tree.query(l, r);
-                    System.out.println(q);
+                    int k = io.nextInt();
+                    int el = tree.findAbove(k);
+                    System.out.println(el);
                 }
             }
         }
