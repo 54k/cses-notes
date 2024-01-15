@@ -1,3 +1,4 @@
+package cf_competition.div3_920;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -7,10 +8,35 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
 
-public class FastIOTemplate {
+public class C {
+
+    static boolean solve(int n, long f, long a, long b, int[] m) {
+        int pos = 0;
+        for (int i = 0; i < m.length; i++) {
+            int diff = m[i] - pos;
+
+            f -= Math.min(diff * a, b);
+            pos = m[i];
+        }
+        return f > 0;
+    }
+
     public static void main(String[] args) {
         try (FastIO io = new FastIO()) {
+            int t = io.nextInt();
+            while (t-- > 0) {
+                int n = io.nextInt();
+                int f = io.nextInt();
+                int a = io.nextInt();
+                int b = io.nextInt();
+                int[] m = new int[n];
+                for (int i = 0; i < m.length; i++) {
+                    m[i] = io.nextInt();
+                }
 
+                boolean res = solve(n, f, a, b, m);
+                System.out.println(res ? "YES" : "NO");
+            }
         }
     }
 

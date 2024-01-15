@@ -1,3 +1,4 @@
+package cf_competition.div3_920;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -7,10 +8,36 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.InputMismatchException;
 
-public class FastIOTemplate {
+public class B {
     public static void main(String[] args) {
         try (FastIO io = new FastIO()) {
+            int t = io.nextInt();
+            while (t-- > 0) {
+                int n = io.nextInt();
+                String cur = io.next();
+                String dest = io.next();
 
+                int[] count = new int[n];
+                for (int i = 0; i < count.length; i++) {
+                    int cc = cur.charAt(i) - '0';
+                    int cd = dest.charAt(i) - '0';
+                    count[i] += cc;
+                    count[i] -= cd;
+                }
+
+                int left = 0;
+                int right = 0;
+
+                for (int i = 0; i < count.length; i++) {
+                    if (count[i] < 0) {
+                        left++;
+                    } else if (count[i] > 0) {
+                        right++;
+                    }
+                }
+
+                System.out.println(Math.max(left, right));
+            }
         }
     }
 

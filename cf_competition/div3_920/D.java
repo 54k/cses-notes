@@ -1,3 +1,4 @@
+package cf_competition.div3_920;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -5,12 +6,43 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.InputMismatchException;
 
-public class FastIOTemplate {
+public class D {
+
+    static long solve(Integer[] a, Integer[] b) {
+        System.out.println("A: " + Arrays.toString(a));
+        System.out.println("B: " + Arrays.toString(b));
+        long diff = 0;
+        for (int i = 0; i < a.length; i++) {
+            diff += Math.abs(a[i] - b[i]);
+        }
+        return diff;
+    }
+
     public static void main(String[] args) {
         try (FastIO io = new FastIO()) {
+            int t = io.nextInt();
+            while (t-- > 0) {
+                int n = io.nextInt();
+                int m = io.nextInt();
 
+                Integer[] a = new Integer[n];
+                Integer[] b = new Integer[m];
+
+                for (int i = 0; i < a.length; i++) {
+                    a[i] = io.nextInt();
+                }
+                for (int i = 0; i < b.length; i++) {
+                    b[i] = io.nextInt();
+                }
+
+                Arrays.sort(b, (x, y) -> y - x);
+                Arrays.sort(a);
+                long ans = solve(a, b);
+                System.out.println("res: " + ans);
+            }
         }
     }
 

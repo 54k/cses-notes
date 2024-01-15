@@ -1,3 +1,4 @@
+package cf_competition.div3_920;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -5,12 +6,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Map;
 
-public class FastIOTemplate {
+public class A {
     public static void main(String[] args) {
         try (FastIO io = new FastIO()) {
+            int t = io.nextInt();
+            while (t-- > 0) {
+                Map<Integer, List<Integer>> map = new HashMap<>();
+                for (int i = 0; i < 4; i++) {
+                    int x = io.nextInt();
+                    int y = io.nextInt();
+                    map.putIfAbsent(x, new ArrayList<>());
+                    map.get(x).add(y);
+                }
+                int[] s = new int[2];
+                int i = 0;
+                for (int x : map.keySet()) {
+                    int y1 = map.get(x).get(0);
+                    int y2 = map.get(x).get(1);
 
+                    s[i++] = Math.max(y1, y2) - Math.min(y1, y2);
+                }
+                System.out.println(s[0] * s[1]);
+            }
         }
     }
 
